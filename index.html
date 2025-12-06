@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Social Blog — Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#fff; --muted:#666; --accent:#4f46e5; --danger:#dc2626;
+      --radius:10px; --shadow: 0 6px 18px rgba(18,24,42,0.06);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#0f172a;background:var(--bg);line-height:1.5}
+    header{background:linear-gradient(90deg,#0f172a,#0b1220);color:#fff;padding:18px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    header h1{margin:0;font-size:20px}
+    nav{display:flex;gap:10px;flex-wrap:wrap}
+    nav a{color:#cbd5e1;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:600}
+    nav a.active, nav a:hover{background:rgba(255,255,255,0.06); color:#fff}
+    .container{max-width:1100px;margin:22px auto;padding:0 16px;display:grid;grid-template-columns:260px 1fr;gap:20px}
+    .sidebar{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .main{min-height:60vh}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:var(--shadow);margin-bottom:16px}
+    .muted{color:var(--muted)}
+    .btn{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(79,70,229,0.12)}
+    input[type="text"], input[type="email"], textarea, select {width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9f2;background:#fafbff}
+    label{display:block;margin-top:10px;font-weight:600}
+    .small{font-size:13px;color:var(--muted)}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .post-card{border-radius:10px;overflow:hidden;border:1px solid #eef2ff;background:#fff}
+    .post-thumb{width:100%;height:160px;object-fit:cover;display:block;background:#f3f4f6}
+    .post-body{padding:10px}
+    .tags{margin-top:8px}
+    .tag{display:inline-block;background:#f1f5f9;color:#0f172a;padding:6px 8px;border-radius:999px;margin-right:6px;font-size:12px}
+    .caption{margin-top:8px;color:#111827}
+    .meta{font-size:12px;color:var(--muted);margin-top:8px}
+    .flex{display:flex;gap:10px;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px}
+    .fileDrop{border:2px dashed #e6eefc;padding:16px;text-align:center;border-radius:10px;background:#fbfdff;cursor:pointer}
+    .activity-list, .messages-list {list-style:none;padding:0;margin:0}
+    .activity-list li, .messages-list li{padding:10px;border-bottom:1px dashed #f1f5f9}
+    .rightSmall{font-size:12px;color:var(--muted)}
+    footer{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+    @media (max-width:900px){
+      .container{grid-template-columns:1fr; padding-bottom:40px}
+      header{justify-content:space-between}
+      nav{order:2}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>My Social Blog</h1>
+    <nav id="mainNav" style="margin-left:auto">
+      <a href="#" data-page="home" class="active" onclick="navigate(event)">Home</a>
+      <a href="#" data-page="about" onclick="navigate(event)">About</a>
+      <a href="#" data-page="posts" onclick="navigate(event)">Posts</a>
+      <a href="#" data-page="activity" onclick="navigate(event)">Activity</a>
+      <a href="#" data-page="messages" onclick="navigate(event)">Messages</a>
+      <a href="#" data-page="settings" onclick="navigate(event)">Settings</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="width:48px;height:48px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)">U</div>
+        <div>
+          <div id="profileName" style="font-weight:700">Your Name</div>
+          <div class="small" id="profileBio">Share updates about your social media website here.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="small" style="font-weight:700;margin-bottom:6px">Quick actions</div>
+        <button class="btn" onclick="showNewPost()">New Image Post</button>
+        <div style="margin-top:10px">
+          <button class="btn ghost" onclick="navigateTo('posts')">All Posts</button>
+        </div>
+      </div>
+
+      <hr style="margin:16px 0;border:none;border-top:1px solid #f3f4f6">
+
+      <div>
+        <div class="small" style="font-weight:700;margin-bottom:8px">About this blog</div>
+        <div class="small muted">
+          Use this blog to publish release notes, screenshots, tutorials, and announcements for your social media platform. Visual posts (images + captions) are great for showing UI changes and new features.
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- HOME -->
+      <section id="page-home" class="card">
+        <h2>Home — Latest Visual Updates</h2>
+        <p class="muted">Featured posts, announcements, and the newest image posts appear here.</p>
+
+        <div style="margin-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">Latest posts</div>
+            <div class="small muted">Images and captions persist across visits</div>
+          </div>
+
+          <div id="homeGallery" class="gallery" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="page-about" class="card" style="display:none">
+        <h2>About this Blog & Your Social Media Site</h2>
+        <p class="muted">This blog highlights features, updates and visual examples for your social media product. Use posts to:</p>
+        <ul>
+          <li>Publish release notes with annotated screenshots</li>
+          <li>Showcase new UI flows and onboarding images</li>
+          <li>Share topic deep-dives and promotional banners</li>
+        </ul>
+
+        <h3 style="margin-top:12px">Content ideas</h3>
+        <ol>
+          <li>Feature walkthroughs with step-by-step screenshots</li>
+          <li>Community spotlights and event images</li>
+          <li>Short how-to posts with images and captions</li>
+        </ol>
+      </section>
+
+      <!-- POSTS -->
+      <section id="page-posts" class="card" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2>Posts — Image publishing</h2>
+          <button class="btn" onclick="showNewPost()">New Post</button>
+        </div>
+
+        <p class="muted">Upload an image, add a title, caption and tags. Captions display beneath images on Home and Posts pages.</p>
+
+        <!-- Post form (hidden by default) -->
+        <div id="postFormWrap" style="margin-top:12px;display:none" class="card">
+          <h3>Create a new image post</h3>
+          <div class="col">
+            <label>Title</label>
+            <input id="postTitle" type="text" placeholder="Short title (e.g. Release 1.2 UI refresh)">
+
+            <label>Caption</label>
+            <textarea id="postCaption" placeholder="Describe the image — caption will appear under the image" rows="3"></textarea>
+
+            <label>Tags (comma separated)</label>
+            <input id="postTags" type="text" placeholder="e.g. release,profile,ui">
+
+            <label>Image</label>
+            <div id="fileDrop" class="fileDrop" onclick="triggerFile()">Click or drop an image here</div>
+            <input id="fileInput" type="file" accept="image/*" style="display:none" onchange="handleFile(event)">
+
+            <div class="flex" style="margin-top:8px">
+              <button class="btn" onclick="publishPost()">Publish</button>
+              <button class="btn ghost" onclick="cancelPost()">Cancel</button>
+            </div>
+            <div id="previewWrap" style="display:none;margin-top:10px">
+              <div style="font-weight:700">Preview</div>
+              <img id="previewImg" src="" alt="preview" style="width:100%;max-height:260px;object-fit:cover;border-radius:8px;margin-top:8px">
+              <div class="caption" id="previewCaption"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div id="postsGallery" class="gallery"></div>
+        </div>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section id="page-activity" class="card" style="display:none">
+        <h2>Activity</h2>
+        <p class="muted">Chronological feed of actions taken in the blog (posts published, messages, settings updated).</p>
+        <ul id="activityList" class="activity-list" style="margin-top:12px"></ul>
+      </section>
+
+      <!-- MESSAGES -->
+      <section id="page-messages" class="card" style="display:none">
+        <h2>Messages</h2>
+        <p class="muted">Send quick messages (saved locally for demo purposes).</p>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-top:8px">
+          <div style="flex:1">
+            <label>To</label>
+            <input id="msgTo" type="text" placeholder="Username or 'Support'">
+            <label style="margin-top:8px">Message</label>
+            <textarea id="msgText" rows="3" placeholder="Write message..."></textarea>
+            <div style="margin-top:8px" class="flex">
+              <button class="btn" onclick="sendMessage()">Send</button>
+              <button class="btn ghost" onclick="clearMessages()">Clear all</button>
+            </div>
+          </div>
+
+          <div style="width:320px">
+            <div style="font-weight:700">Recent conversations</div>
+            <ul id="messagesList" class="messages-list" style="margin-top:8px;max-height:300px;overflow:auto"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="page-settings" class="card" style="display:none">
+        <h2>Settings</h2>
+        <p class="muted">Account details, privacy, and notification preferences.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:12px">
+          <div>
+            <h3>Account Settings</h3>
+            <label>Display name</label>
+            <input id="setName" type="text" placeholder="Your display name">
+
+            <label>Email</label>
+            <input id="setEmail" type="email" placeholder="you@example.com">
+
+            <label>Bio</label>
+            <textarea id="setBio" rows="3" placeholder="Short bio..."></textarea>
+
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn" onclick="saveSettings()">Save changes</button>
+              <button class="btn ghost" onclick="resetSettings()">Reset</button>
+            </div>
+
+            <h3 style="margin-top:18px">Privacy & Notifications</h3>
+            <label style="margin-top:8px"><input id="setProfileVisibility" type="checkbox"> Make profile public</label>
+            <label style="margin-top:8px"><input id="setAllowMessages" type="checkbox"> Allow messages from anyone</label>
+            <label style="margin-top:8px"><input id="setEmailNotify" type="checkbox"> Email notifications</label>
+          </div>
+
+          <aside style="background:#fff;padding:12px;border-radius:10px;box-shadow:var(--shadow)">
+            <div style="font-weight:700">Preview</div>
+            <div style="margin-top:8px">
+              <div id="previewName" style="font-size:16px;font-weight:700">Your Name</div>
+              <div id="previewBio" class="muted">Short bio will show here</div>
+              <div style="margin-top:8px" class="small muted">Profile visibility: <span id="previewVisibility"></span></div>
+              <div style="margin-top:6px" class="small muted">Messages: <span id="previewMessages"></span></div>
+              <div style="margin-top:6px" class="small muted">Email notifications: <span id="previewEmails"></span></div>
+            </div>
+
+            <hr style="margin:10px 0;border:none;border-top:1px solid #f1f5f9">
+            <div class="small muted">Tip: keep profile up-to-date and use images with clear captions. For production, store images on a CDN and use server-side auth.</div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>Demo blog • Images saved locally in your browser (localStorage). Replace with server/CDN for production.</footer>
+
+<script>
+/* ======= Data storage keys and helpers ======= */
+const KEY_POSTS = 'blog_posts_v1';
+const KEY_MESSAGES = 'blog_messages_v1';
+const KEY_ACTIVITY = 'blog_activity_v1';
+const KEY_SETTINGS = 'blog_settings_v1';
+
+function load(key, fallback){ try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch(e){ return fallback; } }
+function save(key, data){ localStorage.setItem(key, JSON.stringify(data)); }
+
+/* ======= App state ======= */
+let posts = load(KEY_POSTS, []);         // {id, title, caption, tags[], imageDataUrl, createdAt}
+let messages = load(KEY_MESSAGES, []);   // {to, text, ts}
+let activity = load(KEY_ACTIVITY, []);   // {text, ts}
+let settings = load(KEY_SETTINGS, { displayName:'Your Name', email:'', bio:'Describe your site', publicProfile:true, allowMessages:true, emailNotify:true });
+
+/* ======= Navigation ======= */
+function navigate(e){
+  e.preventDefault();
+  const page = e.currentTarget.dataset.page;
+  navigateTo(page);
+}
+function navigateTo(page){
+  document.querySelectorAll('section[id^="page-"]').forEach(s => s.style.display='none');
+  document.querySelectorAll('#mainNav a').forEach(a => a.classList.remove('active'));
+  const link = document.querySelector(`#mainNav a[data-page="${page}"]`);
+  if(link) link.classList.add('active');
+  const node = document.getElementById('page-' + page);
+  if(node) node.style.display = '';
+  if(page==='home') renderHome();
+  if(page==='posts') renderPosts();
+  if(page==='activity') renderActivity();
+  if(page==='messages') renderMessages();
+  if(page==='settings') renderSettings();
+}
+
+/* ======= Post form handling ======= */
+let currentFileData = null;
+const fileDrop = document.getElementById('fileDrop');
+const fileInput = document.getElementById('fileInput');
+
+function triggerFile(){ fileInput.click(); }
+function handleFile(e){
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  readImageFile(f);
+}
+function readImageFile(file){
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    currentFileData = ev.target.result;
+    showPreview();
+  };
+  reader.readAsDataURL(file);
+}
+fileDrop.addEventListener('dragover', ev => { ev.preventDefault(); fileDrop.style.background='#eff6ff'; });
+fileDrop.addEventListener('dragleave', ev => { fileDrop.style.background=''; });
+fileDrop.addEventListener('drop', ev => {
+  ev.preventDefault();
+  fileDrop.style.background='';
+  const f = ev.dataTransfer.files && ev.dataTransfer.files[0];
+  if(f) readImageFile(f);
+});
+
+/* ======= Publish / Cancel post ======= */
+function showNewPost(){
+  document.getElementById('postFormWrap').style.display = '';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function cancelPost(){
+  document.getElementById('postFormWrap').style.display = 'none';
+  clearPostInputs();
+}
+function clearPostInputs(){
+  document.getElementById('postTitle').value='';
+  document.getElementById('postCaption').value='';
+  document.getElementById('postTags').value='';
+  currentFileData=null;
+  document.getElementById('previewWrap').style.display='none';
+}
+function showPreview(){
+  if(!currentFileData) { document.getElementById('previewWrap').style.display='none'; return; }
+  document.getElementById('previewImg').src = currentFileData;
+  document.getElementById('previewCaption').textContent = document.getElementById('postCaption').value || '';
+  document.getElementById('previewWrap').style.display = '';
+}
+document.getElementById('postCaption').addEventListener('input', ()=> {
+  document.getElementById('previewCaption').textContent = document.getElementById('postCaption').value || '';
+});
+
+/* Publish a post */
+function publishPost(){
+  const title = document.getElementById('postTitle').value.trim();
+  const caption = document.getElementById('postCaption').value.trim();
+  const tags = document.getElementById('postTags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+  if(!currentFileData){
+    alert('Please choose an image for this post.');
+    return;
+  }
+  const newPost = {
+    id: 'p' + Date.now(),
+    title: title || 'Untitled',
+    caption,
+    tags,
+    image: currentFileData,
+    createdAt: new Date().toISOString()
+  };
+  posts.unshift(newPost);
+  save(KEY_POSTS, posts);
+  addActivity(`Published post: "${newPost.title}"`);
+  clearPostInputs();
+  document.getElementById('postFormWrap').style.display = 'none';
+  renderHome();
+  renderPosts();
+  navigateTo('home');
+}
+
+/* ======= Rendering Home & Posts ======= */
+function renderHome(){
+  // Update profile name in sidebar
+  document.getElementById('profileName').textContent = settings.displayName || 'Your Name';
+  document.getElementById('profileBio').textContent = settings.bio || 'Share updates about your social media website here.';
+
+  const homeGallery = document.getElementById('homeGallery');
+  homeGallery.innerHTML = '';
+  if(posts.length === 0){
+    homeGallery.innerHTML = '<div class="card small muted">No posts yet — create one from Posts → New Post.</div>';
+    return;
+  }
+  // show latest 6
+  posts.slice(0,6).forEach(p => {
+    const el = document.createElement('article');
+    el.className = 'post-card';
+    el.innerHTML = `
+      <img class="post-thumb" src="${p.image}" alt="${escapeHtml(p.title)}">
+      <div class="post-body">
+        <div style="font-weight:700">${escapeHtml(p.title)}</div>
+        <div class="caption">${escapeHtml(p.caption || '')}</div>
+        <div class="tags">${(p.tags||[]).map(t=>`<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+        <div class="meta">${new Date(p.createdAt).toLocaleString()}</div>
+      </div>
+    `;
+    homeGallery.appendChild(el);
+  });
+}
+
+function renderPosts(){
+  const postsGallery = document.getElementById('postsGallery');
+  postsGallery.innerHTML = '';
+  if(posts.length === 0){
+    postsGallery.innerHTML = '<div class="small muted">No posts yet...</div>';
+    return;
+  }
+  posts.forEach(p => {
+    const el = document.createElement('article');
+    el.className = 'post-card';
+    el.innerHTML = `
+      <img class="post-thumb" src="${p.image}" alt="${escapeHtml(p.title)}">
+      <div class="post-body">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:700">${escapeHtml(p.title)}</div>
+          <div style="font-size:12px;color:${'#666'}">${new Date(p.createdAt).toLocaleString()}</div>
+        </div>
+        <div class="caption">${escapeHtml(p.caption || '')}</div>
+        <div class="tags">${(p.tags||[]).map(t=>`<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn ghost" onclick="viewPost('${p.id}')">Open</button>
+          <button class="btn" style="background:${'var(--danger)'}" onclick="deletePost('${p.id}')">Delete</button>
+        </div>
+      </div>
+    `;
+    postsGallery.appendChild(el);
+  });
+}
+
+/* View single post (simple modal fallback: new page replacement) */
+function viewPost(id){
+  const p = posts.find(x=>x.id===id);
+  if(!p) return alert('Post not found');
+  // open "temporary" page with the post content by replacing main content (quick approach)
+  const main = document.querySelector('.main');
+  main.innerHTML = `
+    <div class="card">
+      <button class="btn ghost" onclick="location.reload()">Back</button>
+      <div style="margin-top:12px">
+        <h2 style="margin:0">${escapeHtml(p.title)}</h2>
+        <div class="small muted">${new Date(p.createdAt).toLocaleString()}</div>
+        <img src="${p.image}" style="width:100%;max-height:600px;object-fit:contain;border-radius:8px;margin-top:12px">
+        <div class="caption">${escapeHtml(p.caption)}</div>
+        <div class="tags">${(p.tags||[]).map(t=>`<span class="tag">#${escapeHtml(t)}</span>`).join('')}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* Delete post */
+function deletePost(id){
+  if(!confirm('Delete this post?')) return;
+  posts = posts.filter(p => p.id !== id);
+  save(KEY_POSTS, posts);
+  addActivity('Deleted a post');
+  renderPosts();
+  renderHome();
+}
+
+/* ======= Messages ======= */
+function sendMessage(){
+  const to = document.getElementById('msgTo').value.trim() || 'Support';
+  const text = document.getElementById('msgText').value.trim();
+  if(!text){ alert('Write a message'); return; }
+  messages.unshift({ to, text, ts: new Date().toISOString() });
+  save(KEY_MESSAGES, messages);
+  addActivity(`Sent message to ${to}`);
+  document.getElementById('msgText').value='';
+  renderMessages();
+}
+function clearMessages(){
+  if(!confirm('Clear all messages?')) return;
+  messages = [];
+  save(KEY_MESSAGES, messages);
+  renderMessages();
+}
+function renderMessages(){
+  const list = document.getElementById('messagesList');
+  list.innerHTML = '';
+  if(messages.length === 0){ list.innerHTML = '<div class="small muted">No messages yet</div>'; return; }
+  messages.forEach(m => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div style="font-weight:700">${escapeHtml(m.to)}</div><div class="small muted">${new Date(m.ts).toLocaleString()}</div><div style="margin-top:6px">${escapeHtml(m.text)}</div>`;
+    list.appendChild(li);
+  });
+}
+
+/* ======= Activity ======= */
+function addActivity(text){
+  activity.unshift({ text, ts: new Date().toISOString() });
+  save(KEY_ACTIVITY, activity);
+  renderActivity();
+}
+function renderActivity(){
+  const list = document.getElementById('activityList');
+  list.innerHTML = '';
+  if(activity.length===0){ list.innerHTML = '<div class="small muted">No activity yet</div>'; return; }
+  activity.forEach(a => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div style="font-weight:700">${escapeHtml(a.text)}</div><div class="rightSmall">${new Date(a.ts).toLocaleString()}</div>`;
+    list.appendChild(li);
+  });
+}
+
+/* ======= Settings ======= */
+function renderSettings(){
+  // fill input fields
+  document.getElementById('setName').value = settings.displayName || '';
+  document.getElementById('setEmail').value = settings.email || '';
+  document.getElementById('setBio').value = settings.bio || '';
+  document.getElementById('setProfileVisibility').checked = !!settings.publicProfile;
+  document.getElementById('setAllowMessages').checked = !!settings.allowMessages;
+  document.getElementById('setEmailNotify').checked = !!settings.emailNotify;
+
+  updatePreview();
+}
+function saveSettings(){
+  settings.displayName = document.getElementById('setName').value.trim() || 'Your Name';
+  settings.email = document.getElementById('setEmail').value.trim();
+  settings.bio = document.getElementById('setBio').value.trim();
+  settings.publicProfile = document.getElementById('setProfileVisibility').checked;
+  settings.allowMessages = document.getElementById('setAllowMessages').checked;
+  settings.emailNotify = document.getElementById('setEmailNotify').checked;
+  save(KEY_SETTINGS, settings);
+  addActivity('Updated settings');
+  updatePreview();
+  // also update sidebar
+  document.getElementById('profileName').textContent = settings.displayName;
+  document.getElementById('profileBio').textContent = settings.bio;
+  alert('Settings saved');
+}
+function resetSettings(){
+  if(!confirm('Reset settings to default?')) return;
+  settings = { displayName:'Your Name', email:'', bio:'Describe your site', publicProfile:true, allowMessages:true, emailNotify:true };
+  save(KEY_SETTINGS, settings);
+  renderSettings();
+  addActivity('Reset settings');
+}
+function updatePreview(){
+  document.getElementById('previewName').textContent = settings.displayName || 'Your Name';
+  document.getElementById('previewBio').textContent = settings.bio || '';
+  document.getElementById('previewVisibility').textContent = settings.publicProfile ? 'Public' : 'Private';
+  document.getElementById('previewMessages').textContent = settings.allowMessages ? 'Allowed' : 'Restricted';
+  document.getElementById('previewEmails').textContent = settings.emailNotify ? 'On' : 'Off';
+  document.getElementById('profileName').textContent = settings.displayName;
+  document.getElementById('profileBio').textContent = settings.bio;
+}
+
+/* ======= Utility ======= */
+function escapeHtml(str){ if(!str) return ''; return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" }[s])); }
+
+/* ======= Initial render on load ======= */
+(function init(){
+  // ensure settings present
+  save(KEY_SETTINGS, settings); // in case missing
+  renderHome();
+  renderPosts();
+  renderMessages();
+  renderActivity();
+  renderSettings();
+
+  // showHome by default
+  navigateTo('home');
+})();
+</script>
+</body>
+</html>
